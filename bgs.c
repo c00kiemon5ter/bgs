@@ -13,7 +13,6 @@
 /* macros */
 #define MIN(a, b)       ((a) < (b) ? (a) : (b))
 #define MAX(a, b)       ((a) > (b) ? (a) : (b))
-#define LENGTH(x)       (sizeof x / sizeof x[0])
 
 /* typedefs */
 typedef struct {
@@ -30,6 +29,9 @@ static void updategeom(void);		/* updates screen and/or Xinerama
 					   dimensions */
 
 /* variables */
+#define N 8			/* max number of monitors/background images */
+static Monitor monitors[N];
+static Imlib_Image images[N];
 static int sx, sy, sw, sh;	/* geometry of the screen */
 static Bool center  = False;	/* center image instead of rescale */
 static Bool running = False;
@@ -39,8 +41,6 @@ static Visual *vis;
 static Colormap cm;
 static int nmonitor, nimage;	/* Amount of monitors/available background
 				   images */
-static Monitor monitors[8];
-static Imlib_Image images[LENGTH(monitors)];
 
 /* function implementations */
 void
@@ -143,7 +143,7 @@ setup(char *paths[], int c) {
 	int i, screen;
 
 	/* Loading images */
-	for(nimage = i = 0; i < c && i < LENGTH(images); i++) {
+	for(nimage = i = 0; i < c && i < N; i++) {
 		if((images[nimage] = imlib_load_image_without_cache(paths[i])))
 			nimage++;
 		else {
@@ -179,7 +179,7 @@ updategeom(void) {
 
 	if(XineramaIsActive(dpy) &&
 			(info = XineramaQueryScreens(dpy, &nmonitor))) {
-		nmonitor = MIN(nmonitor, LENGTH(monitors));
+		nmonitor = MIN(nmonitor, N);
 		for(i = 0; i < nmonitor; i++) {
 			monitors[i].x = info[i].x_org;
 			monitors[i].y = info[i].y_org;
