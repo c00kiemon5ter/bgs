@@ -1,0 +1,34 @@
+.TH BGS 1 bgs\-VERSION
+.SH NAME
+bgs \- back ground setter
+.SH SYNOPSIS
+.B bgs
+.RB [ \-v ]
+.RB [ \-c ]
+.RB [ \-x ]
+.RB [ IMAGE1 ... IMAGEN ]
+.SH DESCRIPTION
+bgs allows you to tailor the appearance of the background ("root") window on
+a workstation display running X.
+.P
+bgs uses imlib2 for image rendering and rotates the images automaticly. It
+is designed for dynamic Xinerama/Xrandr setups such as those used with notebooks,
+but it works well in any setup.
+.P
+.SH OPTIONS
+.TP
+.B \-v
+prints version information to standard output, then exits.
+.TP
+.B \-c
+centers image rather then scaling it.
+.TP
+.B \-x
+switches to dynamic mode. bgs will update your background as soon as
+the root window changes.
+.SH SEE ALSO
+.BR dwm (1)
+.BR xsetroot (1)
+.SH BUGS
+bgs can't decide how the monitor is rotated if you use xrandr-rotation,
+so it assumes the monitor is rotated clockwise.
