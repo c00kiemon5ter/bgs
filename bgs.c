@@ -224,3 +224,5 @@ main(int argc, char *argv[]) {
 	XCloseDisplay(dpy);
 	return EXIT_SUCCESS;
 }
+
+/* vim: set noexpandtab ts=8 sts=8 sw=8 tw=80: */
