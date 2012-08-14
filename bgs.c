@@ -151,11 +151,9 @@ setup(char *paths[], int c) {
 	for(int i = nimage = 0; i < c && i < N; i++) {
 		if((images[nimage] = imlib_load_image_without_cache(paths[i])))
 			nimage++;
-		else {
+		else
 			fprintf(stderr, "warning: cannot load file `%s`."
 					"ignoring.\n", paths[nimage]);
-			continue;
-		}
 	}
 	if(nimage == 0)
 		die("error: no image to draw.");
