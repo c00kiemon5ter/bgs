@@ -37,8 +37,6 @@ static Bool center  = False;	/* center image instead of rescale */
 static Bool running = False;
 static Display *dpy;
 static Window root;
-static Visual *vis;
-static Colormap cm;
 static int nmonitor, nimage;	/* Amount of monitors/available background
 				   images */
 
@@ -140,10 +138,8 @@ run(void) {
 
 void
 setup(char *paths[], int c) {
-	int i, screen;
-
 	/* Loading images */
-	for(nimage = i = 0; i < c && i < N; i++) {
+	for(int i = nimage = 0; i < c && i < N; i++) {
 		if((images[nimage] = imlib_load_image_without_cache(paths[i])))
 			nimage++;
 		else {
@@ -156,9 +152,9 @@ setup(char *paths[], int c) {
 		die("Error: No image to draw.\n");
 
 	/* set up X */
-	screen = DefaultScreen(dpy);
-	vis = DefaultVisual(dpy, screen);
-	cm = DefaultColormap(dpy, screen);
+	const int screen = DefaultScreen(dpy);
+	Visual * const vis = DefaultVisual(dpy, screen);
+	const Colormap cm = DefaultColormap(dpy, screen);
 	root = RootWindow(dpy, screen);
 	XSelectInput(dpy, root, StructureNotifyMask);
 	sx = sy = 0;
