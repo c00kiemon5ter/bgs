@@ -59,36 +59,35 @@ void
 drawbg(void) {
 	int w, h, nx, ny, nh, nw;
 	double factor;
-	Pixmap pm;
 	Imlib_Image tmpimg, buffer;
 
 	const int screen = DefaultScreen(dpy);
 	const Window root = RootWindow(dpy, screen);
-
-	pm = XCreatePixmap(dpy, root, s.w, s.h, DefaultDepth(dpy,
+	const Pixmap pm = XCreatePixmap(dpy, root, s.w, s.h, DefaultDepth(dpy,
 				DefaultScreen(dpy)));
 
 	if(!(buffer = imlib_create_image(s.w, s.h)))
 		die("Error: Cannot allocate buffer.\n");
-	imlib_context_set_image(buffer);
-	imlib_context_set_color(0,0,0,0);
-	imlib_image_fill_rectangle(0, 0, s.w, s.h);
-	imlib_context_set_blend(1);
+
 	for(int i = 0; i < nmonitor; i++) {
 		imlib_context_set_image(images[i % nimage]);
-		w = imlib_image_get_width();
-		h = imlib_image_get_height();
 
+		/* get a copy to work on */
 		if(!(tmpimg = imlib_clone_image()))
 			die("Error: Cannot clone image.\n");
 
+		/* if necessery rotate the image */
 		imlib_context_set_image(tmpimg);
+		w = imlib_image_get_width();
+		h = imlib_image_get_height();
 		if((monitors[i].w > monitors[i].h && w < h) ||
 				(monitors[i].w < monitors[i].h && w > h)) {
 			imlib_image_orientate(1);
-			int tmp = w;
-			w = h;
-			h = tmp;
+			if (w != h) {
+				int tmp = w;
+				w = h;
+				h = tmp;
+			}
 		}
 
 		imlib_context_set_image(buffer);
@@ -115,7 +114,6 @@ drawbg(void) {
 		imlib_context_set_image(tmpimg);
 		imlib_free_image();
 	}
-	imlib_context_set_blend(0);
 	imlib_context_set_image(buffer);
 	imlib_context_set_drawable(root);
 	imlib_render_image_on_drawable(0, 0);
