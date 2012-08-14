@@ -42,9 +42,7 @@ static int nmonitor, nimage;	/* Amount of monitors/available background
 /* function implementations */
 void
 cleanup(void) {
-	int i;
-
-	for(i = 0; i < nimage; i++) {
+	for(int i = 0; i < nimage; i++) {
 		imlib_context_set_image(images[i]);
 		imlib_free_image_and_decache();
 	}
@@ -58,7 +56,7 @@ die(const char *errstr) {
 
 void
 drawbg(void) {
-	int i, w, h, nx, ny, nh, nw, tmp;
+	int w, h, nx, ny, nh, nw;
 	double factor;
 	Pixmap pm;
 	Imlib_Image tmpimg, buffer;
@@ -74,7 +72,7 @@ drawbg(void) {
 	imlib_context_set_color(0,0,0,0);
 	imlib_image_fill_rectangle(0, 0, s.w, s.h);
 	imlib_context_set_blend(1);
-	for(i = 0; i < nmonitor; i++) {
+	for(int i = 0; i < nmonitor; i++) {
 		imlib_context_set_image(images[i % nimage]);
 		w = imlib_image_get_width();
 		h = imlib_image_get_height();
@@ -84,7 +82,7 @@ drawbg(void) {
 		if((monitors[i].w > monitors[i].h && w < h) ||
 				(monitors[i].w < monitors[i].h && w > h)) {
 			imlib_image_orientate(1);
-			tmp = w;
+			int tmp = w;
 			w = h;
 			h = tmp;
 		}
