@@ -96,11 +96,29 @@ drawbg(void) {
 		imlib_context_set_image(buffer);
 		switch (mode) {
 			case CENTER:
-				nx = monitors[i].x + (monitors[i].w - w) / 2;
-				ny = monitors[i].y + (monitors[i].h - h) / 2;
+				nx = (w == monitors[i].w) ? 0 :
+					((w - monitors[i].w) / 2);
+				ny = (h == monitors[i].h) ? 0 :
+					((h - monitors[i].h) / 2);
+
+				/* FIXME possible leak ? */
+				if(w > monitors[i].w || h > monitors[i].h) {
+					imlib_context_set_image(tmpimg);
+					tmpimg = imlib_create_cropped_image(
+							nx, ny,
+							(w = monitors[i].w),
+							(h = monitors[i].h));
+				}
+
+				nx = (w >= monitors[i].w) ? monitors[i].x
+					: (monitors[i].x - nx);
+				ny = (h >= monitors[i].h) ? monitors[i].y
+					: (monitors[i].y - ny);
+
+				imlib_context_set_image(buffer);
 				imlib_blend_image_onto_image(tmpimg, 0,
-							0, 0, w, h,
-							nx, ny, w, h);
+						0, 0, w, h,
+						nx, ny, w, h);
 				break;
 			case STRETCH:
 				imlib_blend_image_onto_image_skewed(tmpimg, 0,
