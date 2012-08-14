@@ -225,7 +225,7 @@ main(int argc, char *argv[]) {
 			die("bgs-"VERSION", © 2010 bgs engineers, see"
 					"LICENSE for details\n");
 		default:
-			die("usage: bgs [-v] [-c] [-s] [-x] [IMAGE]...\n");
+			die("usage: bgs [-v] [-c] [-s] [-x] IMAGE(S)...\n");
 		}
 	if(!(dpy = XOpenDisplay(NULL)))
 		die("bgs: cannot open display\n");

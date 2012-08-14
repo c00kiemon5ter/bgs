@@ -1,36 +1,62 @@
 bgs - back ground setter
 ========================
-bgs is an extremely fast and small background setter for X.
+`bgs` is an extremely fast and small background setter for X.
 
 
 Requirements
 ------------
-In order to build bgs you need the Xlib and Imlib2 header files.
+In order to build bgs you need the `Xlib` and `Imlib2` header files.
 
 
 Installation
 ------------
-Edit config.mk to match your local setup (bgs is installed into
-the /usr/local namespace by default).
+Edit `config.mk` to match your local setup (bgs is installed into
+the `/usr/local` namespace, with Xinerama support enabled by default).
 
-Afterwards enter the following command to build and install bgs (if
+Afterwards enter the following command to build and install `bgs` (if
 necessary as root):
 
-    make clean install
-
-If you are going to use the default bluegray color scheme it is highly
-recommended to also install the bluegray files shipped in the dextra package.
+    # make clean install
 
 
 Running bgs
 -----------
-Add the following line to your .xinitrc to start bgs using startx:
+
+### run once:
+
+supposing `bgs` is installed,
+
+    $ bgs /path/to/image
+
+will rescale the image to fit the screen.
+
+    $ bgs -c /path/to/image
+
+will center the image on the screen.
+
+    $ bgs -s /path/to/image
+
+will stretch the image to fill the screen.
+
+Given more than one image, `bgs` will set the background of each monitor
+(if multiple monitors are present) to the corresponding image respectively.
+
+..more is there, read the man page.
+
+---
+
+In order to connect `bgs` to a specific display, make sure that
+the DISPLAY environment variable is set correctly, e.g.:
+
+    $ DISPLAY=foo.bar:1 bgs <image> &
+
+(This will start `bgs` on display `:1` of the host `foo.bar`.)
+
+---
+
+### run on X startup:
+
+Add the following line to your `~/.xinitrc` to start `bgs` using `startx`:
 
     bgs <image> &
 
-In order to connect bgs to a specific display, make sure that
-the DISPLAY environment variable is set correctly, e.g.:
-
-    DISPLAY=foo.bar:1 bgs <image> &
-
-(This will start bgs on display :1 of the host foo.bar.)
