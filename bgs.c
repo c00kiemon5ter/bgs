@@ -32,7 +32,7 @@ static void updategeom(void);		/* updates screen and/or Xinerama
 #define N 8			/* max number of monitors/background images */
 static Monitor monitors[N];
 static Imlib_Image images[N];
-static int sx, sy, sw, sh;	/* geometry of the screen */
+static Monitor s;		/* geometry of the screen */
 static Bool center  = False;	/* center image instead of rescale */
 static Bool running = False;
 static Display *dpy;
@@ -64,13 +64,13 @@ drawbg(void) {
 	Pixmap pm;
 	Imlib_Image tmpimg, buffer;
 
-	pm = XCreatePixmap(dpy, root, sw, sh, DefaultDepth(dpy,
+	pm = XCreatePixmap(dpy, root, s.w, s.h, DefaultDepth(dpy,
 				DefaultScreen(dpy)));
-	if(!(buffer = imlib_create_image(sw, sh)))
+	if(!(buffer = imlib_create_image(s.w, s.h)))
 		die("Error: Cannot allocate buffer.\n");
 	imlib_context_set_image(buffer);
 	imlib_context_set_color(0,0,0,0);
-	imlib_image_fill_rectangle(0, 0, sw, sh);
+	imlib_image_fill_rectangle(0, 0, s.w, s.h);
 	imlib_context_set_blend(1);
 	for(i = 0; i < nmonitor; i++) {
 		imlib_context_set_image(images[i % nimage]);
@@ -129,8 +129,8 @@ run(void) {
 		imlib_flush_loaders();
 		XNextEvent(dpy, &ev);
 		if(ev.type == ConfigureNotify) {
-			sw = ev.xconfigure.width;
-			sh = ev.xconfigure.height;
+			s.w = ev.xconfigure.width;
+			s.h = ev.xconfigure.height;
 			imlib_flush_loaders();
 		}
 	}
@@ -157,9 +157,9 @@ setup(char *paths[], int c) {
 	const Colormap cm = DefaultColormap(dpy, screen);
 	root = RootWindow(dpy, screen);
 	XSelectInput(dpy, root, StructureNotifyMask);
-	sx = sy = 0;
-	sw = DisplayWidth(dpy, screen);
-	sh = DisplayHeight(dpy, screen);
+	s.x = s.y = 0;
+	s.w = DisplayWidth(dpy, screen);
+	s.h = DisplayHeight(dpy, screen);
 
 	/* set up Imlib */
 	imlib_context_set_display(dpy);
