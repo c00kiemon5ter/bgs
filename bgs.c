@@ -121,6 +121,7 @@ drawbg(void) {
 						0, 0, monitors[i].h);
 				break;
 			case SCALE:
+			default:
 				factor = MAX((double)w / monitors[i].w,
 						(double)h / monitors[i].h);
 				nw = w / factor;
@@ -129,7 +130,6 @@ drawbg(void) {
 				ny = monitors[i].y + (monitors[i].h - nh) / 2;
 				imlib_blend_image_onto_image(tmpimg, 0, 0, 0,
 							w, h, nx, ny, nw, nh);
-			default:
 				break;
 		}
 
