@@ -36,7 +36,6 @@ static Monitor s;		/* geometry of the screen */
 static Bool center  = False;	/* center image instead of rescale */
 static Bool running = False;
 static Display *dpy;
-static Window root;
 static int nmonitor, nimage;	/* Amount of monitors/available background
 				   images */
 
@@ -63,6 +62,9 @@ drawbg(void) {
 	double factor;
 	Pixmap pm;
 	Imlib_Image tmpimg, buffer;
+
+	const int screen = DefaultScreen(dpy);
+	const Window root = RootWindow(dpy, screen);
 
 	pm = XCreatePixmap(dpy, root, s.w, s.h, DefaultDepth(dpy,
 				DefaultScreen(dpy)));
@@ -153,10 +155,12 @@ setup(char *paths[], int c) {
 
 	/* set up X */
 	const int screen = DefaultScreen(dpy);
+	const Window root = RootWindow(dpy, screen);
+
 	Visual * const vis = DefaultVisual(dpy, screen);
 	const Colormap cm = DefaultColormap(dpy, screen);
-	root = RootWindow(dpy, screen);
 	XSelectInput(dpy, root, StructureNotifyMask);
+
 	s.x = s.y = 0;
 	s.w = DisplayWidth(dpy, screen);
 	s.h = DisplayHeight(dpy, screen);
