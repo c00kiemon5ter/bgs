@@ -96,11 +96,25 @@ drawbg(void) {
 		imlib_context_set_image(buffer);
 		switch (mode) {
 			case CENTER:
-				nx = (w == monitors[i].w) ? 0 :
-					((w - monitors[i].w) / 2);
-				ny = (h == monitors[i].h) ? 0 :
-					((h - monitors[i].h) / 2);
+				nx = w - monitors[i].w;
+				if (nx) nx /= 2;
+				ny = h - monitors[i].h;
+				if (ny) ny /= 2;
 
+				/**
+				 * if image doesnt fit the monitor
+				 * it must be cropped so as not to
+				 * overlap with other monitors.
+				 *
+				 * this also means that the image
+				 * will now fit the monitor exactly,
+				 * so 'nx' and 'ny' may need to be
+				 * reset, dependig on which axis (or
+				 * both) the image now fits exactly.
+				 *
+				 * crop also changes the size of the
+				 * image, so 'w' and 'h' must be updated.
+				 */
 				/* FIXME possible leak ? */
 				if(w > monitors[i].w || h > monitors[i].h) {
 					imlib_context_set_image(tmpimg);
@@ -108,12 +122,24 @@ drawbg(void) {
 							nx, ny,
 							(w = monitors[i].w),
 							(h = monitors[i].h));
+					if (w >= monitors[i].w) nx = 0;
+					if (h >= monitors[i].h) ny = 0;
 				}
 
-				nx = (w >= monitors[i].w) ? monitors[i].x
-					: (monitors[i].x - nx);
-				ny = (h >= monitors[i].h) ? monitors[i].y
-					: (monitors[i].y - ny);
+				/**
+				 * if n<axis> is zero - either the image fit the
+				 * monitor, or was cropped to fit - then we just
+				 * need to add the offset on that axis.
+				 * otherwise the image was smaller than the
+				 * monitor, so we also need to add the offset
+				 * to center the image.
+				 * notice the negation enables addition, as
+				 *	nx = w - monitors[i].w;
+				 * will result in a negative value, if the image
+				 * was smaller than the monitor
+				 */
+				nx = monitors[i].x - nx;
+				ny = monitors[i].y - ny;
 
 				imlib_context_set_image(buffer);
 				imlib_blend_image_onto_image(tmpimg, 0,
