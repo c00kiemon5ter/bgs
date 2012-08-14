@@ -108,16 +108,15 @@ drawbg(void) {
 		imlib_context_set_image(buffer);
 		switch (mode) {
 			case CENTER:
-				nw = (monitors[i].w - w) / 2;
-				nh = (monitors[i].h - h) / 2;
-				nx = monitors[i].x + (monitors[i].w - nw) / 2;
-				ny = monitors[i].y + (monitors[i].h - nh) / 2;
-				imlib_blend_image_onto_image(tmpimg, 0, 0, 0,
-							w, h, nx, ny, nw, nh);
+				nx = monitors[i].x + (monitors[i].w - w) / 2;
+				ny = monitors[i].y + (monitors[i].h - h) / 2;
+				imlib_blend_image_onto_image(tmpimg, 0,
+							0, 0, w, h,
+							nx, ny, w, h);
 				break;
 			case STRETCH:
-				imlib_blend_image_onto_image_skewed(tmpimg,
-						0, 0, 0, w, h, monitors[i].x,
+				imlib_blend_image_onto_image_skewed(tmpimg, 0,
+						0, 0, w, h, monitors[i].x,
 						monitors[i].y, monitors[i].w,
 						0, 0, monitors[i].h);
 				break;
