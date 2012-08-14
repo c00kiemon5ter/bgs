@@ -51,6 +51,7 @@ cleanup(void) {
 
 void
 die(const char *errstr) {
+	fputs("bgs: ", stderr);
 	fputs(errstr, stderr);
 	exit(EXIT_FAILURE);
 }
@@ -67,14 +68,14 @@ drawbg(void) {
 			DefaultDepth(dpy, DefaultScreen(dpy)));
 
 	if(!(buffer = imlib_create_image(scrn.w, scrn.h)))
-		die("Error: Cannot allocate buffer.\n");
+		die("error: cannot allocate buffer.\n");
 
 	for(int i = 0; i < nmonitor; i++) {
 		imlib_context_set_image(images[i % nimage]);
 
 		/* get a copy to work on */
 		if(!(tmpimg = imlib_clone_image()))
-			die("Error: Cannot clone image.\n");
+			die("error: cannot clone image.\n");
 
 		/* if necessery rotate the image */
 		imlib_context_set_image(tmpimg);
@@ -158,7 +159,7 @@ setup(char *paths[], int c) {
 		}
 	}
 	if(nimage == 0)
-		die("Error: No image to draw.\n");
+		die("error: no image to draw.\n");
 
 	/* set up X */
 	const int screen = DefaultScreen(dpy);
@@ -203,7 +204,7 @@ updategeom(void) {
 #endif
 
 	if (!nmonitor)
-		die("bgs: no monitors to configure");
+		die("error: no monitors to configure");
 }
 
 int
@@ -226,7 +227,7 @@ main(int argc, char *argv[]) {
 			die("usage: bgs [-v] [-c] [-s] [-x] IMAGE(S)...\n");
 		}
 	if(!(dpy = XOpenDisplay(NULL)))
-		die("bgs: cannot open display\n");
+		die("error: cannot open display\n");
 	setup(&argv[i], argc - i);
 	run();
 	cleanup();
