@@ -19,6 +19,15 @@ typedef struct {
 	int x, y, w, h;
 } Monitor;
 
+/**
+ * background modes
+ *
+ * SCALE:   scale image to fit screen
+ * CENTER:  center image instead of rescale
+ * STRETCH: stretch image to fill screen losing aspect ratio
+ */
+enum { SCALE, CENTER, STRETCH, };
+
 /* function declarations */
 static void cleanup(void);		/* frees images before exit. */
 static void die(const char *errstr);	/* prints errstr to strerr and exits. */
@@ -28,17 +37,23 @@ static void setup(char *paths[], int c);/* sets up imlib and X */
 static void updategeom(void);		/* updates screen and/or Xinerama
 					   dimensions */
 
-/* variables */
-#define N 8			/* max number of monitors/background images */
+/**
+ * global variables
+ *
+ * N         max number of monitors/background images
+ * scrn      geometry of the screen
+ * mode      the background mode
+ * nmonitor  amount of monitors
+ * nimage    available background images
+ */
+#define N 8
 static Monitor monitors[N];
 static Imlib_Image images[N];
-static Monitor scrn;		/* geometry of the screen */
-static Bool center  = False;	/* center image instead of rescale */
-static Bool stretch = False;	/* stretch image to fill screen */
+static Monitor scrn;
 static Bool running = False;
 static Display *dpy;
-static int nmonitor, nimage;	/* Amount of monitors/available background
-				   images */
+static unsigned int mode = SCALE;
+static int nmonitor, nimage;
 
 /* function implementations */
 void
@@ -91,24 +106,32 @@ drawbg(void) {
 		}
 
 		imlib_context_set_image(buffer);
-		if(center) {
-			nw = (monitors[i].w - w) / 2;
-			nh = (monitors[i].h - h) / 2;
-		}
-
-		if(stretch)
-			imlib_blend_image_onto_image_skewed(tmpimg, 0, 0, 0, w,
-					h, monitors[i].x, monitors[i].y,
-					monitors[i].w, 0, 0, monitors[i].h);
-		else {
-			factor = MAX((double)w / monitors[i].w,
-					(double)h / monitors[i].h);
-			nw = w / factor;
-			nh = h / factor;
-			nx = monitors[i].x + (monitors[i].w - nw) / 2;
-			ny = monitors[i].y + (monitors[i].h - nh) / 2;
-			imlib_blend_image_onto_image(tmpimg, 0, 0, 0, w, h,
-					nx, ny, nw, nh);
+		switch (mode) {
+			case CENTER:
+				nw = (monitors[i].w - w) / 2;
+				nh = (monitors[i].h - h) / 2;
+				nx = monitors[i].x + (monitors[i].w - nw) / 2;
+				ny = monitors[i].y + (monitors[i].h - nh) / 2;
+				imlib_blend_image_onto_image(tmpimg, 0, 0, 0,
+							w, h, nx, ny, nw, nh);
+				break;
+			case STRETCH:
+				imlib_blend_image_onto_image_skewed(tmpimg,
+						0, 0, 0, w, h, monitors[i].x,
+						monitors[i].y, monitors[i].w,
+						0, 0, monitors[i].h);
+				break;
+			case SCALE:
+				factor = MAX((double)w / monitors[i].w,
+						(double)h / monitors[i].h);
+				nw = w / factor;
+				nh = h / factor;
+				nx = monitors[i].x + (monitors[i].w - nw) / 2;
+				ny = monitors[i].y + (monitors[i].h - nh) / 2;
+				imlib_blend_image_onto_image(tmpimg, 0, 0, 0,
+							w, h, nx, ny, nw, nh);
+			default:
+				break;
 		}
 
 		imlib_context_set_image(tmpimg);
@@ -212,9 +235,9 @@ main(int argc, char *argv[]) {
 			argv[i][1] != '-' && argv[i][2] == '\0'; i++)
 		switch(argv[i][1]) {
 		case 'c':
-			center = True; break;
+			mode = CENTER; break;
 		case 's':
-			stretch = True; break;
+			mode = STRETCH; break;
 		case 'x':
 			running = True; break;
 		case 'v':
