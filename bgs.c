@@ -32,7 +32,7 @@ static void updategeom(void);		/* updates screen and/or Xinerama
 #define N 8			/* max number of monitors/background images */
 static Monitor monitors[N];
 static Imlib_Image images[N];
-static Monitor s;		/* geometry of the screen */
+static Monitor scrn;		/* geometry of the screen */
 static Bool center  = False;	/* center image instead of rescale */
 static Bool stretch = False;	/* stretch image to fill screen */
 static Bool running = False;
@@ -63,10 +63,10 @@ drawbg(void) {
 
 	const int screen = DefaultScreen(dpy);
 	const Window root = RootWindow(dpy, screen);
-	const Pixmap pm = XCreatePixmap(dpy, root, s.w, s.h, DefaultDepth(dpy,
-				DefaultScreen(dpy)));
+	const Pixmap pm = XCreatePixmap(dpy, root, scrn.w, scrn.h,
+			DefaultDepth(dpy, DefaultScreen(dpy)));
 
-	if(!(buffer = imlib_create_image(s.w, s.h)))
+	if(!(buffer = imlib_create_image(scrn.w, scrn.h)))
 		die("Error: Cannot allocate buffer.\n");
 
 	for(int i = 0; i < nmonitor; i++) {
@@ -135,8 +135,8 @@ run(void) {
 	while(running) {
 		XNextEvent(dpy, &ev);
 		if(ev.type == ConfigureNotify) {
-			s.w = ev.xconfigure.width;
-			s.h = ev.xconfigure.height;
+			scrn.w = ev.xconfigure.width;
+			scrn.h = ev.xconfigure.height;
 			imlib_flush_loaders();
 		}
 		updategeom();
@@ -168,9 +168,9 @@ setup(char *paths[], int c) {
 	const Colormap cm = DefaultColormap(dpy, screen);
 	XSelectInput(dpy, root, StructureNotifyMask);
 
-	s.x = s.y = 0;
-	s.w = DisplayWidth(dpy, screen);
-	s.h = DisplayHeight(dpy, screen);
+	scrn.x = scrn.y = 0;
+	scrn.w = DisplayWidth(dpy, screen);
+	scrn.h = DisplayHeight(dpy, screen);
 
 	/* set up Imlib */
 	imlib_context_set_display(dpy);
@@ -184,10 +184,10 @@ updategeom(void) {
 	XineramaScreenInfo *info = XineramaQueryScreens(dpy, &nmonitor);
 #else
 	struct { int x_org, y_org, width, height; } info[(nmonitor = 1)];
-	info[0].x_org  = 0;
-	info[0].y_org  = 0;
-	info[0].width  = DisplayWidth(dpy, screen);
-	info[0].height = DisplayHeight(dpy, screen);
+	info[0].x_org  = scrn.x;
+	info[0].y_org  = scrn.y;
+	info[0].width  = scrn.w;
+	info[0].height = scrn.h;
 #endif
 
 	nmonitor = MIN(nmonitor, N);
