@@ -51,8 +51,7 @@ cleanup(void) {
 
 void
 die(const char *errstr) {
-	fputs("bgs: ", stderr);
-	fputs(errstr, stderr);
+	fprintf(stderr, "bgs: %s\n", errstr);
 	exit(EXIT_FAILURE);
 }
 
@@ -68,14 +67,14 @@ drawbg(void) {
 			DefaultDepth(dpy, DefaultScreen(dpy)));
 
 	if(!(buffer = imlib_create_image(scrn.w, scrn.h)))
-		die("error: cannot allocate buffer.\n");
+		die("error: cannot allocate buffer.");
 
 	for(int i = 0; i < nmonitor; i++) {
 		imlib_context_set_image(images[i % nimage]);
 
 		/* get a copy to work on */
 		if(!(tmpimg = imlib_clone_image()))
-			die("error: cannot clone image.\n");
+			die("error: cannot clone image.");
 
 		/* if necessery rotate the image */
 		imlib_context_set_image(tmpimg);
@@ -153,13 +152,13 @@ setup(char *paths[], int c) {
 		if((images[nimage] = imlib_load_image_without_cache(paths[i])))
 			nimage++;
 		else {
-			fprintf(stderr, "Warning: Cannot load file `%s`."
-					"Ignoring.\n", paths[nimage]);
+			fprintf(stderr, "warning: cannot load file `%s`."
+					"ignoring.\n", paths[nimage]);
 			continue;
 		}
 	}
 	if(nimage == 0)
-		die("error: no image to draw.\n");
+		die("error: no image to draw.");
 
 	/* set up X */
 	const int screen = DefaultScreen(dpy);
@@ -222,12 +221,12 @@ main(int argc, char *argv[]) {
 			running = True; break;
 		case 'v':
 			die("bgs-"VERSION", © 2010 bgs engineers, see"
-					"LICENSE for details\n");
+					"LICENSE for details");
 		default:
-			die("usage: bgs [-v] [-c] [-s] [-x] IMAGE(S)...\n");
+			die("usage: bgs [-v] [-c] [-s] [-x] IMAGE(S)...");
 		}
 	if(!(dpy = XOpenDisplay(NULL)))
-		die("error: cannot open display\n");
+		die("error: cannot open display");
 	setup(&argv[i], argc - i);
 	run();
 	cleanup();
