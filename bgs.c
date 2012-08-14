@@ -86,24 +86,12 @@ drawbg(void) {
 
 	for(int i = 0; i < nmonitor; i++) {
 		imlib_context_set_image(images[i % nimage]);
-
-		/* get a copy to work on */
 		if(!(tmpimg = imlib_clone_image()))
 			die("error: cannot clone image.");
 
-		/* if necessery rotate the image */
 		imlib_context_set_image(tmpimg);
 		w = imlib_image_get_width();
 		h = imlib_image_get_height();
-		if((monitors[i].w > monitors[i].h && w < h) ||
-				(monitors[i].w < monitors[i].h && w > h)) {
-			imlib_image_orientate(1);
-			if (w != h) {
-				int tmp = w;
-				w = h;
-				h = tmp;
-			}
-		}
 
 		imlib_context_set_image(buffer);
 		switch (mode) {
