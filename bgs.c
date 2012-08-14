@@ -174,29 +174,29 @@ setup(char *paths[], int c) {
 void
 updategeom(void) {
 #ifdef XINERAMA
-	int i;
-	XineramaScreenInfo *info = NULL;
-
-	if(XineramaIsActive(dpy) &&
-			(info = XineramaQueryScreens(dpy, &nmonitor))) {
-		nmonitor = MIN(nmonitor, N);
-		for(i = 0; i < nmonitor; i++) {
-			monitors[i].x = info[i].x_org;
-			monitors[i].y = info[i].y_org;
-			monitors[i].w = info[i].width;
-			monitors[i].h = info[i].height;
-		}
-		XFree(info);
-	}
-	else
+	XineramaScreenInfo *info = XineramaQueryScreens(dpy, &nmonitor);
+#else
+	struct { int x_org, y_org, width, height; } info[(nmonitor = 1)];
+	info[0].x_org  = 0;
+	info[0].y_org  = 0;
+	info[0].width  = DisplayWidth(dpy, screen);
+	info[0].height = DisplayHeight(dpy, screen);
 #endif
-	{
-		nmonitor = 1;
-		monitors[0].x = sx;
-		monitors[0].y = sy;
-		monitors[0].w = sw;
-		monitors[0].h = sh;
+
+	nmonitor = MIN(nmonitor, N);
+	for(int i = 0; i < nmonitor; i++) {
+		monitors[i].x = info[i].x_org;
+		monitors[i].y = info[i].y_org;
+		monitors[i].w = info[i].width;
+		monitors[i].h = info[i].height;
 	}
+
+#ifdef XINERAMA
+	XFree(info);
+#endif
+
+	if (!nmonitor)
+		die("bgs: no monitors to configure");
 }
 
 int
