@@ -34,6 +34,7 @@ static Monitor monitors[N];
 static Imlib_Image images[N];
 static Monitor s;		/* geometry of the screen */
 static Bool center  = False;	/* center image instead of rescale */
+static Bool stretch = False;	/* stretch image to fill screen */
 static Bool running = False;
 static Display *dpy;
 static int nmonitor, nimage;	/* Amount of monitors/available background
@@ -66,6 +67,7 @@ drawbg(void) {
 
 	pm = XCreatePixmap(dpy, root, s.w, s.h, DefaultDepth(dpy,
 				DefaultScreen(dpy)));
+
 	if(!(buffer = imlib_create_image(s.w, s.h)))
 		die("Error: Cannot allocate buffer.\n");
 	imlib_context_set_image(buffer);
@@ -76,8 +78,10 @@ drawbg(void) {
 		imlib_context_set_image(images[i % nimage]);
 		w = imlib_image_get_width();
 		h = imlib_image_get_height();
+
 		if(!(tmpimg = imlib_clone_image()))
 			die("Error: Cannot clone image.\n");
+
 		imlib_context_set_image(tmpimg);
 		if((monitors[i].w > monitors[i].h && w < h) ||
 				(monitors[i].w < monitors[i].h && w > h)) {
@@ -86,21 +90,28 @@ drawbg(void) {
 			w = h;
 			h = tmp;
 		}
+
 		imlib_context_set_image(buffer);
 		if(center) {
 			nw = (monitors[i].w - w) / 2;
 			nh = (monitors[i].h - h) / 2;
 		}
+
+		if(stretch)
+			imlib_blend_image_onto_image_skewed(tmpimg, 0, 0, 0, w,
+					h, monitors[i].x, monitors[i].y,
+					monitors[i].w, 0, 0, monitors[i].h);
 		else {
 			factor = MAX((double)w / monitors[i].w,
 					(double)h / monitors[i].h);
 			nw = w / factor;
 			nh = h / factor;
+			nx = monitors[i].x + (monitors[i].w - nw) / 2;
+			ny = monitors[i].y + (monitors[i].h - nh) / 2;
+			imlib_blend_image_onto_image(tmpimg, 0, 0, 0, w, h,
+					nx, ny, nw, nh);
 		}
-		nx = monitors[i].x + (monitors[i].w - nw) / 2;
-		ny = monitors[i].y + (monitors[i].h - nh) / 2;
-		imlib_blend_image_onto_image(tmpimg, 0, 0, 0, w, h,
-				nx, ny, nw, nh);
+
 		imlib_context_set_image(tmpimg);
 		imlib_free_image();
 	}
@@ -206,13 +217,15 @@ main(int argc, char *argv[]) {
 		switch(argv[i][1]) {
 		case 'c':
 			center = True; break;
+		case 's':
+			stretch = True; break;
 		case 'x':
 			running = True; break;
 		case 'v':
 			die("bgs-"VERSION", © 2010 bgs engineers, see"
 					"LICENSE for details\n");
 		default:
-			die("usage: bgs [-v] [-c] [-x] [IMAGE]...\n");
+			die("usage: bgs [-v] [-c] [-s] [-x] [IMAGE]...\n");
 		}
 	if(!(dpy = XOpenDisplay(NULL)))
 		die("bgs: cannot open display\n");
