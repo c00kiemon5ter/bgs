@@ -122,19 +122,19 @@ void
 run(void) {
 	XEvent ev;
 
+	updategeom();
+	drawbg();
 
-	for(;;) {
-		updategeom();
-		drawbg();
-		if(!running)
-			break;
-		imlib_flush_loaders();
+	while(running) {
 		XNextEvent(dpy, &ev);
 		if(ev.type == ConfigureNotify) {
 			s.w = ev.xconfigure.width;
 			s.h = ev.xconfigure.height;
 			imlib_flush_loaders();
 		}
+		updategeom();
+		drawbg();
+		imlib_flush_loaders();
 	}
 }
 
