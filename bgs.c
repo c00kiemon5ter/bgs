@@ -122,6 +122,8 @@ drawbg(void) {
 							nx, ny,
 							(w = monitors[i].w),
 							(h = monitors[i].h));
+					if (!tmpimg)
+						die("error: cannot crop image");
 					if (w >= monitors[i].w) nx = 0;
 					if (h >= monitors[i].h) ny = 0;
 				}
